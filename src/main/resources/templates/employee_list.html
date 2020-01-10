@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>员工列表</title>
+    <link th:href="@{dist/css/bootstrap.css}" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" th:href="@{css/emp.css}"/>
+  </head>
+  <body>
+	
+	<div class="container">
+		<h1 class="text-center">员工列表</h1>
+		
+		<table class="table">
+			<thead>
+				<tr>
+					<th>员工ID</th>
+					<th>姓名</th>
+					<th>部门</th>
+					<th>性别</th>
+					<th>邮箱</th>
+					<th>手机号</th>
+					<th>入职时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				<tr th:each="emp,empStat:${employees.page}">
+					<td th:text="${emp.empId}">1001</td>
+					<td th:text="${emp.empName}">史蒂芬</td>
+					<td th:text="${emp.department.deptName}">行政部</td>
+					<td th:text="${emp.gender}">男</td>
+					<td th:text="${emp.email}">steven@163.com</td>
+					<td th:text="${emp.phone}">18888888888</td>
+					<td th:text="${#dates.format(emp.hireDate,'yyyy-MM-dd HH:mm:ss')}">2019-08-09 10:10:12</td>
+					<td>
+						<a onclick="if(confirm('确认删除？')){return ture;}else{return false;}" th:href="@{/delemp/{empId}(empId=${emp.empId})}">&nbsp;删除 >></a>
+						<a th:href="@{/upup/(empId=${emp.empId})}">&nbsp;&nbsp;更新 >></a>
+					</td>
+				</tr>
+
+			</tbody>
+		</table>
+		<div class="row">
+			<div class="col-lg-9">
+				<a class="btn btn-default" th:href="@{/addEmp}">添加员工</a> &nbsp;&nbsp;&nbsp; <a class="btn btn-default" href="#">Excel导出</a>
+			</div>
+			<div class="col-lg-3">
+				<ul id="page">
+					<li>
+						<a href="#" id="pre">上一页</a>
+					</li>
+					<li>
+						<span id="showid">1/10</span>
+					</li>
+					<li>
+						<a href="#" id="next">下一页</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script th:src="@{js/jquery.js}"></script>
+    <!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+    <script th:src="@{dist/js/bootstrap.js}"></script>
+	<script>
+
+		var hasNext=true;
+		var hasPre=true;
+		var pageCount=0;
+		var pageNo=1;
+		var pageSize=2;
+
+		//获取分页数据
+		$.getJSON("pagedata",{pageNo:pageNo,pageSize:pageSize},function (data) {
+			console.log(data);
+			hasNext = data.hasNext;
+			hasPre = data.hasPre;
+			pageCount=data.pageCount;
+			pageNo=data.pageNo;
+
+
+			var result=	data.page;
+			var str="";
+			for (var i=0;i<result.length;i++){
+                str+="<tr>\n" +
+                    "<td>"+result[i].empId+"</td>\n" +
+                    "<td>"+result[i].empName+"</td>\n" +
+                    "<td>"+result[i].department.deptName+"</td>\n" +
+                    "<td>"+result[i].gender+"</td>\n" +
+                    "<td>"+result[i].email+"</td>\n" +
+                    "<td>"+result[i].phone+"</td>\n" +
+                    "<td>"+result[i].hireDate+"</td>\n" +
+                    "<td>\n" +
+                    "<a onclick=\"if(confirm('是否删除?')){return true;}else{return false;}\" href=\"delemp/"+result[i].empId+"\">&nbsp;删除 >></a>\n" +
+                    "<a href=\"upup?empId="+result[i].empId+"\">&nbsp;&nbsp;更新 >></a>\n" +
+                    "</td></tr>"
+			}
+			$("#tbody").html(str);
+
+			$("#showid").html(pageNo+"/"+pageCount);
+        })
+
+		$("#pre").click(function () {
+
+
+			if (hasPre) {
+                pageNo = pageNo - 1;
+                $.getJSON("pagedata", {pageNo: pageNo, pageSize: pageSize}, function (data) {
+                    console.log(data);
+                    hasNext = data.hasNext;
+                    hasPre = data.hasPre;
+                    pageCount = data.pageCount;
+                    pageNo = data.pageNo;
+
+
+                    var result = data.page;
+                    var str = "";
+                    for (var i = 0; i < result.length; i++) {
+                        str += "<tr>\n" +
+                            "<td>" + result[i].empId + "</td>\n" +
+                            "<td>" + result[i].empName + "</td>\n" +
+                            "<td>" + result[i].department.deptName + "</td>\n" +
+                            "<td>" + result[i].gender + "</td>\n" +
+                            "<td>" + result[i].email + "</td>\n" +
+                            "<td>" + result[i].phone + "</td>\n" +
+                            "<td>" + result[i].hireDate + "</td>\n" +
+                            "<td>\n" +
+                            "<a onclick=\"if(confirm('是否删除?')){return true;}else{return false;}\" href=\"delemp/" + result[i].empId + "\">&nbsp;删除 >></a>\n" +
+                            "<a href=\"upup?empId=" + result[i].empId + "\">&nbsp;&nbsp;更新 >></a>\n" +
+                            "</td></tr>"
+                    }
+                    $("#tbody").html(str)
+
+                    $("#showid").html(pageNo + "/" + pageCount)
+                })
+            }else {
+			    alert("已经是第一页了");
+			}
+        });
+        $("#next").click(function () {
+            if(hasNext){
+                pageNo = pageNo+1;
+
+
+
+                //获取分页数据
+                $.getJSON("pagedata",{pageNo:pageNo,pageSize:pageSize},function (data) {
+                    console.log(data);
+                    hasNext = data.hasNext;
+                    hasPre = data.hasPre;
+                    pageCount = data.pageCount;
+                    pageNo = data.pageNo;
+
+
+                    var result = data.page;
+                    var str="";
+                    for(var i=0;i<result.length;i++){
+
+                        str+="<tr>\n" +
+                            "<td>"+result[i].empId+"</td>\n" +
+                            "<td>"+result[i].empName+"</td>\n" +
+                            "<td>"+result[i].department.deptName+"</td>\n" +
+                            "<td>"+result[i].gender+"</td>\n" +
+                            "<td>"+result[i].email+"</td>\n" +
+                            "<td>"+result[i].phone+"</td>\n" +
+                            "<td>"+result[i].hireDate+"</td>\n" +
+                            "<td>\n" +
+                            "<a onclick=\"if(confirm('是否删除?')){return true;}else{return false;}\" href=\"delemp/"+result[i].empId+"\">&nbsp;删除 >></a>\n" +
+                            "<a href=\"upup?empId="+result[i].empId+"\">&nbsp;&nbsp;更新 >></a>\n" +
+                            "</td></tr>"
+                    }
+
+                    //console.log(str);
+                    //将str防止到tbody标签下
+                    $("#tbody").html(str);
+                    //页码展示
+                    $("#showid").html(pageNo + "/" + pageCount);
+                })
+
+
+
+            }else{
+                alert("已经是最后一页");
+            }
+
+        });
+
+
+
+		
+	</script>
+  </body>
+</html>

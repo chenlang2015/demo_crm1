@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snow.mapper.DepartmentMapper">
+
+    <select id="getDepartmentList" resultType="department">
+        select * from department
+    </select>
+    
+    <select id="getDepartmentByDeptId" resultType="department" parameterType="int">
+        SELECT * FROM department WHERE dept_Id=#{deptId}
+    </select>
+    <resultMap id="deptMap" type="department">
+        <id column="dept_id" property="deptId"></id>
+        <result column="dept_name" property="deptName"></result>
+        <collection property="employees" ofType="employee">
+            <id column="emp_id" property="empId"></id>
+            <result column="emp_name" property="empName"></result>
+            <result column="email" property="email"></result>
+            <result column="gender" property="gender"></result>
+            <result column="phone" property="phone"></result>
+            <result column="hire_date" property="hireDate"></result>
+
+        </collection>
+
+    </resultMap>
+
+    <select id="getDepartmentByDeptId_" parameterType="int" resultMap="deptMap">
+        select * FROM department d,employee e WHERE d.dept_id=e.dept_id and d.dept_id=#{deptId}
+    </select>
+</mapper>
