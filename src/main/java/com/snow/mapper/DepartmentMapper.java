@@ -2,10 +2,12 @@ package com.snow.mapper;
 
 import com.snow.entity.Department;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Mapper
+@Repository
 public interface DepartmentMapper {
     /**
      * 获取部门列表
@@ -19,7 +21,6 @@ public interface DepartmentMapper {
      * @return
      */
     Department getDepartmentByDeptId(Integer deptId);
-
 
     /**
      * 根据部门ID查询部门详情

@@ -22,7 +22,6 @@ public class EmpController {
     @Autowired
     private DeptService deptService;
 
-
     /*获取所有用户*/
     @GetMapping("/allemp")
     public String allEmpList(Integer pageNo, Integer pageSize, Model model){
@@ -81,7 +80,8 @@ public class EmpController {
     @ResponseBody
     @GetMapping("/pagedata")
     public Page<Employee> getPageData(Integer pageNo,Integer pageSize){
-        if (pageNo==null){
+        if (pageNo==null)
+        {
             pageNo=1;
         }
         if (pageSize==null){
